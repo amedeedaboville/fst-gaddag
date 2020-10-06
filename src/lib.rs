@@ -1,7 +1,8 @@
 use std::collections::BTreeSet;
 use std::str::from_utf8;
+use std::iter;
 use fst::{IntoStreamer, Streamer, Set, SetBuilder};
-use fst::automaton::{Automaton, Subsequence};
+use fst::automaton::{Automaton, Str};
 use regex_automata::dense;
 
 pub struct Gaddag(fst::Set<Vec<u8>>);
@@ -36,25 +37,33 @@ pub fn build_entries(input: impl IntoIterator<Item= String>) -> BTreeSet<Vec<u8>
 }
 
 impl Gaddag {
-    /*
-    pub fn ends_with(&self, input: &str) -> Iterator<Item = String> {
-        //$input_rev[a-z]*, 
-        //reverse input, and look for that + , endword
-        //self.0.startswith(input.rev())
-        let pattern = r"(?i)foo";
-        let dfa = dense::Builder::new().anchored(true).build(pattern).unwrap();;
-        let mut stream = self.0.search(&dfa).into_stream();
-        self.0.search(search_vec)
+    pub fn ends_with(&self, input: &str)-> Vec<String> {
+        let pattern : String = input.chars().rev().chain(".*,".chars()).collect();
+        let matcher = dense::Builder::new().anchored(true).build(&pattern).unwrap();
+        #[cfg(feature = "debug")]
+        println!("Searching for {}", pattern);
+
+        let mut stream = self.0.search(matcher).into_stream();
+        let mut keys = Vec::new();
+        while let Some(key) = stream.next() {
+            keys.push(Self::item_to_word(key))
         }
-        */
-    /*
-    pub fn starts_with(&self, input: &str)-> Iterator<Item = String>  {
+        keys
+        }
+    pub fn starts_with(&self, input: &str)-> Vec<String> {
         //look up input.rev() + ','
-        let search_str = input.rev() + SEP;
-        let matcher = StartsWith(
-        self.0.starts_with(search_str)
+        let search_val : String = input.chars().rev().chain(iter::once(SEP as char)).collect();
+        #[cfg(feature = "debug")]
+        println!("Searching for {}", search_val);
+
+        let matcher = Str::new(&search_val).starts_with();
+        let mut stream = self.0.search(matcher).into_stream();
+        let mut keys = Vec::new();
+        while let Some(key) = stream.next() {
+            keys.push(Self::item_to_word(key))
         }
-        */
+        keys
+        }
     //exact match
     pub fn contains(&self, input: &str) -> bool {
         let mut search_vec : Vec<u8> = (*input.chars().rev().collect::<String>().as_bytes()).to_vec();
@@ -63,23 +72,28 @@ impl Gaddag {
         println!("Searching for {}", from_utf8(&search_vec).unwrap());
         self.0.contains(search_vec)
     }
-    //rev the input, return everything before the comma and after
-    pub fn substring(&self, input: &str) -> Vec<(String, String)> {
+
+    //all the words that have 'input' in the middle of them
+    pub fn substring(&self, input: &str) -> Vec<String> {
         let search_val : String = input.chars().rev().collect();
         #[cfg(feature = "debug")]
         println!("Searching for {}", search_val);
 
-        let matcher = Subsequence::new(&search_val).starts_with();
+        let matcher = Str::new(&search_val).starts_with();
         let mut stream = self.0.search(matcher).into_stream();
         let mut keys = Vec::new();
         while let Some(key) = stream.next() {
-            let gaddag_string : String = String::from_utf8(key.to_vec()).unwrap();
-            let (pre, suf) = gaddag_string.split_at((&gaddag_string).find(SEP as char).unwrap());
-            keys.push((pre.to_string().chars().rev().collect(), suf.to_string()));
+            keys.push(Self::item_to_word(key))
         }
         keys
     }
     pub fn from(set : Set<Vec<u8>>) -> Gaddag {
         return Gaddag(set);
+    }
+
+    fn item_to_word(item: &[u8]) -> String {
+        let string = String::from_utf8(item.to_vec()).unwrap();
+        let idx = (&string).find(SEP as char).unwrap();
+        string[0..idx].chars().rev().chain(string[(idx+1)..].chars()).collect()
     }
 }

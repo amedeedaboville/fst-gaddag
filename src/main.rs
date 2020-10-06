@@ -19,8 +19,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let fst = Set::new(read("dictionary.fst")?)?;
     println!("Done reading dictionary!");
     let set : Gaddag =  Gaddag::from(fst);
-    println!("dict contains COW? {} ", set.contains("COW"));
-    println!("dict words with COW? {:#?} ", set.substring("COW"));
+    println!("dict contains COW : {} ", set.contains("COW"));
+    println!("dict words with .*COW.*: {:#?} ", set.substring("COW"));
+    println!("dict words with COW.*: {:#?} ", set.starts_with("COW"));
+    println!("dict words with .*LY: {:#?} ", set.ends_with("LY"));
 
     Ok(())
 }
