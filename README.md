@@ -10,7 +10,7 @@ A GADDAG is a data structure invented for scrabble AIs to generate all possible 
 
 You could imagine using a regular prefix trie to quickly answer:
 
-* "what can I build by appending letters to PLAIN" (PLAINS, PLAINTIFF, ...)
+* "what can I build by appending letters to PLAIN" (PLAINS, PLAINLY, PLAINTIFF, ...)
 
 or the same data in a reverse order to answer
 * "what can I build by pre-pending to PLAIN" (EXPLAIN)
@@ -43,12 +43,12 @@ Then you can query it with:
 ```rust
 println!("dict contains AA : {} ", gaddag.contains("AA"));
 println!("dict words with .*TRING: {:#?} ", gaddag.ends_with("TRING"));
-println!("dict words with BA*: {:#?} ", gaddag.starts_with("BA"));
-println!("dict words with *PLING*: {:#?} ", gaddag.substring("PLING"));
+println!("dict words with BA.*: {:#?} ", gaddag.starts_with("BA"));
+println!("dict words with .*PLING.*: {:#?} ", gaddag.substring("PLING"));
 ```
 
 You may want to navigate it node by node when building your possible moves in a Scrabble game.
-In that case you'll use the lower level `CompiledAddr` type from fst to refer to node addresses in the
+In that case you'll use the lower level `CompiledAddr` type from `fst` to refer to node addresses in the
 gaddag.
 
 You can get the node address for a prefix with:
