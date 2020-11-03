@@ -1,6 +1,6 @@
 # fst-gaddag
 
-An unfinished GADDAG implementation in rust using the fst crate.
+An unfinished GADDAG implementation in Rust built with the [fst](https://github.com/BurntSushi/fst) crate.
 
 I'm not using this yet in any real capacity so it's unlikely to be ready to be usable (or even correct).
 
@@ -60,7 +60,9 @@ And then you can query for if you can continue with the tiles in your bag one by
 if let Some(next_node_addr) = gaddag.can_next(node_addr, "a"); //checks if there is a word in the dictionary with the prefix "bana"
 ```
 
-Limitations
+A note on text encodings
 ----
-This crate currently only supports words of up to 15 utf8 characters in length, due to the scrabble use-case.
-This could be removed at any time, just file an issue if this is a use case you have.
+`fst` is optimized for storing bytes, which means that it's fine for utf8 strings as long as you remember to encode and decode your inputs and outputs.
+
+This code has so far been only tested in English. While it should theoretically support multi-byte characters there
+may be uncovered bugs in there.
