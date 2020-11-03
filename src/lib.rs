@@ -6,8 +6,8 @@ use std::iter;
 use std::str::from_utf8;
 
 pub struct Gaddag(fst::Set<Vec<u8>>);
-static SEP: u8 = ',' as u8;
-static SEP_STR: &str = ",";
+pub static SEP: u8 = ',' as u8;
+pub static SEP_STR: &str = ",";
 static MAX_WORD_LENGTH: usize = 15;
 
 pub fn build_entries(input: impl IntoIterator<Item = String>) -> BTreeSet<Vec<u8>> {
