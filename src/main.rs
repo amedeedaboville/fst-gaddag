@@ -1,10 +1,11 @@
-use std::fs::{File, read, read_to_string};
 use std::collections::BTreeSet;
+use std::fs::{read, read_to_string, File};
 use std::io::{self, prelude::*, BufReader};
+use std::str::from_utf8;
 
-use gaddag_bundle::{build_entries, Gaddag};
-use fst::{IntoStreamer, Streamer, Set, SetBuilder};
 use fst::raw::Fst;
+use fst::{IntoStreamer, Set, SetBuilder, Streamer};
+use fst_gaddag::{build_entries, Gaddag};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = File::open("dictionary.txt")?;
@@ -18,11 +19,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Done writing dictionary!");
     let fst = Set::new(read("dictionary.fst")?)?;
     println!("Done reading dictionary!");
-    let set : Gaddag =  Gaddag::from(fst);
+    let set: Gaddag = Gaddag::from_fst(fst);
     println!("dict contains COW : {} ", set.contains("COW"));
-    println!("dict words with .*COW.*: {:#?} ", set.substring("COW"));
-    println!("dict words with COW.*: {:#?} ", set.starts_with("COW"));
-    println!("dict words with .*LY: {:#?} ", set.ends_with("LY"));
+    println!("dict contains AA : {} ", set.contains("AA"));
+    println!("dict words with .*TRING: {:#?} ", set.ends_with("TRING"));
 
     Ok(())
 }
