@@ -3,39 +3,41 @@ use fst::raw::{CompiledAddr, Node};
 use fst::{IntoStreamer, Set};
 use std::collections::BTreeSet;
 use std::iter;
-use std::str::from_utf8;
 
 pub struct Gaddag(fst::Set<Vec<u8>>);
 pub static SEP: u8 = ',' as u8;
 pub static SEP_STR: &str = ",";
+
 static MAX_WORD_LENGTH: usize = 15;
 
 pub fn build_entries(input: impl IntoIterator<Item = String>) -> BTreeSet<Vec<u8>> {
     let mut entries: BTreeSet<Vec<u8>> = BTreeSet::new();
     let mut new_word: Vec<u8> = Vec::with_capacity(MAX_WORD_LENGTH);
-    let mut before_diamond: Vec<u8> = Vec::with_capacity(MAX_WORD_LENGTH);
-    let mut after_diamond: Vec<u8> = Vec::with_capacity(MAX_WORD_LENGTH);
+    let mut before_sep: Vec<u8> = Vec::with_capacity(MAX_WORD_LENGTH);
+    let mut after_sep: Vec<u8> = Vec::with_capacity(MAX_WORD_LENGTH);
     for word in input.into_iter() {
-        after_diamond.clear();
-        before_diamond.clear();
+        after_sep.clear();
+        before_sep.clear();
 
-        before_diamond.extend(word.as_bytes());
-        after_diamond.push(before_diamond.pop().unwrap());
+        before_sep.extend(word.as_bytes());
+        after_sep.push(before_sep.pop().unwrap());
 
         //#[cfg(feature = "debug")]
         //println!("Building entries for {}", word);
 
         let whole_word_rev = word.chars().rev().collect::<String>().as_bytes().to_vec();
+
         //#[cfg(feature = "debug")]
         //println!("Inserting entry {}", from_utf8(&whole_word_rev).unwrap());
         entries.insert(whole_word_rev);
 
-        while before_diamond.len() > 0 {
+        while before_sep.len() > 0 {
             new_word.clear();
-            new_word.extend(before_diamond.iter().rev());
+            new_word.extend(before_sep.iter().rev());
             new_word.push(SEP);
-            new_word.extend(after_diamond.iter().rev());
-            after_diamond.push(before_diamond.pop().unwrap());
+            new_word.extend(after_sep.iter().rev());
+            after_sep.push(before_sep.pop().unwrap());
+
             //#[cfg(feature = "debug")]
             //println!("Inserting entry {}", from_utf8(&new_word).unwrap());
 
@@ -96,19 +98,12 @@ impl Gaddag {
         println!("Searching for {}", search_val);
 
         let matcher = Str::new(&search_val).starts_with();
-        let mut stream = self.0.search(matcher).into_stream();
-        stream
-            .into_strs()
-            .unwrap()
-            .iter()
-            .map(|w| Self::demangle_item(w))
-            .collect()
+        self.search_fst(matcher)
     }
 
     //exact match
     pub fn contains(&self, input: &str) -> bool {
-        let mut search_vec: Vec<u8> =
-            (*input.chars().rev().collect::<String>().as_bytes()).to_vec();
+        let search_vec: Vec<u8> = (*input.chars().rev().collect::<String>().as_bytes()).to_vec();
         #[cfg(feature = "debug")]
         println!("Searching for {}", from_utf8(&search_vec).unwrap());
         self.0.contains(search_vec)
@@ -121,13 +116,7 @@ impl Gaddag {
         println!("Searching for {}", search_val);
 
         let matcher = Str::new(&search_val).starts_with();
-        let mut stream = self.0.search(matcher).into_stream();
-        stream
-            .into_strs()
-            .unwrap()
-            .iter()
-            .map(|w| Self::demangle_item(w))
-            .collect()
+        self.search_fst(matcher)
     }
 
     pub fn from_fst(set: Set<Vec<u8>>) -> Gaddag {
@@ -164,6 +153,7 @@ impl Gaddag {
         let mut current_node: Node = self.0.as_fst().root();
         for c in prefix.chars() {
             if let Some(transition_idx) = current_node.find_input(c as u8) {
+                //todo don't just cast char to u8
                 let next_node = self
                     .0
                     .as_fst()

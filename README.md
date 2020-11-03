@@ -60,3 +60,7 @@ And then you can query for if you can continue with the tiles in your bag one by
 if let Some(next_node_addr) = gaddag.can_next(node_addr, "a"); //checks if there is a word in the dictionary with the prefix "bana"
 ```
 
+Limitations
+----
+This crate currently only supports words of up to 15 utf8 characters in length, due to the scrabble use-case.
+This could be removed at any time, just file an issue if this is a use case you have.
