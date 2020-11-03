@@ -6,7 +6,7 @@ I'm not using this yet in any real capacity so it's unlikely to be ready to be u
 
 What's a GADDAG?
 ----
-A GADDAG is a data structure invented for scrabble AIs to generate all possible words that contain a subsequence.
+A GADDAG is a [data structure invented for scrabble AIs](https://ericsink.com/downloads/faster-scrabble-gordon.pdf) to generate all possible words that contain a subsequence.
 
 You could imagine using a regular prefix trie to quickly answer:
 
