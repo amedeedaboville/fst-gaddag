@@ -21,7 +21,7 @@ The GADDAG is a regular DAG that stores several variations of each word in a cle
 
 Why is this one neat?
 ---
-This one uses the fantastic `fst` crate as its underlying engine. I recommend reading the blog post, but essentially it
+This one uses the fantastic `fst` crate as its underlying engine. I recommend reading the [blog post about it](https://blog.burntsushi.net/transducers/), but essentially it
 optimises storing Sets or Maps of strings where the strings have a lot of overlap.
 
 It has the ability to optimize shared postfixes as well as prefixes, so unlike a prefix trie, it can also share the last 3 nodes of eg
