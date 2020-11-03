@@ -1,9 +1,10 @@
 [package]
-name = "gaddag-bundle"
+name = "fst-gaddag"
 version = "0.1.0"
 authors = ["Amédée d'Aboville <amedee.daboville@gmail.com>"]
 edition = "2018"
 
+description = "An implementation of the GADDAG data structure with the FST crate."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
@@ -11,4 +12,3 @@ debug = []
 
 [dependencies]
 fst = "0.4.4"
-regex-automata = {version = "0.1.9", features=["transducer"]}
