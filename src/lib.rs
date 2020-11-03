@@ -135,7 +135,7 @@ impl Gaddag {
     }
 
     pub fn from_words(input: impl IntoIterator<Item = String>) -> Gaddag {
-        Self::from_fst(Set::from_iter(input.into_iter()).unwrap())
+        Self::from_fst(Set::from_iter(build_entries(input)).unwrap())
     }
 
     fn search_fst(&self, matcher: impl Automaton) -> Vec<String> {
