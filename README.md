@@ -38,6 +38,20 @@ let reader = BufReader::new(file);
 let gaddag = Gaddag::from_words(reader.lines().map(|l| l.unwrap()));
  ```
   
+You can also load it from bytes with:
+
+```rust
+static INPUT: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/set.fst"));
+let gaddag = Gaddag::from_bytes(INPUT).unwrap();
+ ```
+ 
+Saving it to bytes is similar:
+
+```rust
+let mut file = File::create("gaddag.fst")?;
+file.write_all(gaddag.as_bytes());
+```
+
 Then you can query it with:
 ```rust
 println!("dict contains AA : {} ", gaddag.contains("AA"));
