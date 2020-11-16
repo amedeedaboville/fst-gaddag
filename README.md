@@ -1,8 +1,7 @@
 # fst-gaddag
 
-An unfinished GADDAG implementation in Rust built with the [fst](https://github.com/BurntSushi/fst) crate.
+An GADDAG implementation in Rust built with the [fst](https://github.com/BurntSushi/fst) crate.
 
-I'm not using this yet in any real capacity so it's unlikely to be ready to be usable (or even correct).
 
 What's a GADDAG?
 ----
@@ -48,16 +47,16 @@ println!("dict words with .*PLING.*: {:#?} ", gaddag.substring("PLING"));
 ```
 
 You may want to navigate it node by node when building your possible moves in a Scrabble game.
-In that case you'll use the lower level `CompiledAddr` type from `fst` to refer to node addresses in the
+In that case you'll use the lower level `CompiledAddr` type from `fst` to refer to the indexes of nodes in the
 gaddag.
 
 You can get the node address for a prefix with:
 ```rust
-let node_addr = gaddag.node_for_prefix("ban")
+let node_addr = gaddag.node_for_prefix("GIN")
 ```
 And then you can query for if you can continue with the tiles in your bag one by one with
 ```rust
-if let Some(next_node_addr) = gaddag.can_next(node_addr, "a"); //checks if there is a word in the dictionary with the prefix "bana"
+if let Some(next_node_addr) = gaddag.can_next(node_addr, "GINT"); //checks if there is a word in the dictionary with TING in it
 ```
 
 A note on text encodings
