@@ -1,8 +1,9 @@
 use fst::automaton::{Automaton, Str, Subsequence};
-use fst::raw::{CompiledAddr, Node};
-use fst::{IntoStreamer, Set};
+pub use fst::raw::{CompiledAddr, Node};
+use fst::{IntoStreamer, Set, Result};
 use std::collections::BTreeSet;
 use std::iter;
+
 
 pub struct Gaddag(fst::Set<Vec<u8>>);
 pub static SEP: u8 = ',' as u8;
@@ -122,9 +123,17 @@ impl Gaddag {
     pub fn from_fst(set: Set<Vec<u8>>) -> Gaddag {
         Gaddag(set)
     }
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Gaddag> {
+        let fst_set = Set::new(bytes)?;
+        Ok(Gaddag::from_fst(fst_set))
+    }
 
     pub fn from_words(input: impl IntoIterator<Item = String>) -> Gaddag {
         Self::from_fst(Set::from_iter(build_entries(input)).unwrap())
+    }
+
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_fst().as_bytes()
     }
 
     fn search_fst(&self, matcher: impl Automaton) -> Vec<String> {
